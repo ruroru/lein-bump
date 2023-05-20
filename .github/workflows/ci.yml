@@ -9,13 +9,39 @@ on:
       - main
 
 jobs:
-  test:
+  test-graalvm:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        java_version: [ '8', '11', '17', '20']
-        java: [ 'temurin', 'zulu', 'corretto']
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        graal_version: [ '11', '17' ]
 
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: 'latest'
+          java-version: ${{ matrix.graal_version }}
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - name: Install clojure tools
+        uses: DeLaGuardo/setup-clojure@10.3
+        with:
+          lein: 2.9.1
+
+      - name: Run unit tests
+        run: lein test
+
+  test-jvm:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        java_version: [ '8', '11', '17', '20' ]
+        java: [ 'temurin', 'zulu', 'corretto' ]
 
     runs-on: ${{ matrix.os }}
 
@@ -31,11 +57,7 @@ jobs:
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@10.3
         with:
-          # Install just one or all simultaneously
-          # The value must indicate a particular version of the tool, or use 'latest'
-          # to always provision the latest version
-          lein: 2.9.1                  # Leiningen
+          lein: 2.9.1
 
       - name: Run unit tests
         run: lein test
-
