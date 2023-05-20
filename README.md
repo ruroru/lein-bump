@@ -1,6 +1,6 @@
 # lein-versions-plugin
 
-A Leiningen plugin to 
+A Leiningen plugin to set, update and get lein project version.
 
 ## Installation
 
@@ -29,8 +29,9 @@ Steps patch version and adds SNAPSHOT suffix
 
     $ lein versions-plugin prepare-dev
 ### get
-    $ lein versions-plugin get
+Returns current project version
 
+    $ lein versions-plugin get
 ## License
 
 Copyright © 2023 FIXME

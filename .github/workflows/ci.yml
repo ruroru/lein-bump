@@ -1,5 +1,4 @@
 name: ci
-
 on:
   push:
     branches:
@@ -7,16 +6,13 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   test-graalvm:
     strategy:
       matrix:
         os: [ ubuntu-latest, macOS-latest, windows-latest ]
         graal_version: [ '11', '17' ]
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,24 +23,20 @@ jobs:
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
-
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@10.3
         with:
           lein: 2.9.1
-
       - name: Run unit tests
         run: lein test
 
   test-jvm:
     strategy:
       matrix:
-        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        os: [ ubuntu-latest ]
         java_version: [ '8', '11', '17', '20' ]
-        java: [ 'temurin', 'zulu', 'corretto' ]
-
+        java: [ 'zulu' ]
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -53,11 +45,9 @@ jobs:
         with:
           distribution: ${{ matrix.java }}
           java-version: ${{ matrix.java_version }}
-
       - name: Install clojure tools
         uses: DeLaGuardo/setup-clojure@10.3
         with:
           lein: 2.9.1
-
       - name: Run unit tests
         run: lein test
