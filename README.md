@@ -4,7 +4,7 @@ A Leiningen plugin to set, update and get lein project version.
 
 ## Installation
 
-Place `[lein-versions-plugin "1.0.0"]` into the `:plugins` vector of your project.clj.
+Place `[lein-versions-plugin "1.0.1"]` into the `:plugins` vector of your project.clj.
 
 ## Usage
 ### set
