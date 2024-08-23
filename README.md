@@ -1,37 +1,24 @@
-# lein-versions-plugin
-
-A Leiningen plugin to set, update and get lein project version.
 
 ## Installation
 
-Place `[lein-versions-plugin "1.0.1"]` into the `:plugins` vector of your project.clj.
+Add `[lein-versions-plugin "1.0.1"]` to plugins list in project.clj.
 
 ## Usage
-### set
-Sets version in project.clj.
+### Retrieving the current project's version
+    $ lein versions-plugin
+
+### Setting the project's version
 
     $ lein versions-plugin set {x.y.z}
-### release
-#### release
-Prepares version for release by removing SNAPSHOT suffix. 
+### Stepping the project's version
 
-    $ lein versions-plugin release
-#### release minor
-Prepares version for release by bumping minor version
+    $ lein versions-plugin step
 
-    $ lein versions-plugin release minor
-#### release major
-Prepares version for release by bumping major version
+    $ lein versions-plugin step minor
 
-    $ lein versions-plugin release major
-### prepare-dev
-Steps patch version and adds SNAPSHOT suffix
+    $ lein versions-plugin step major
 
-    $ lein versions-plugin prepare-dev
-### get
-Returns current project version
 
-    $ lein versions-plugin get
 ## License
 
 Copyright © 2023 FIXME
