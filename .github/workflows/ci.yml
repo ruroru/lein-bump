@@ -19,7 +19,7 @@ jobs:
           distribution: ${{ matrix.java }}
           java-version: ${{ matrix.java_version }}
       - name: Install clojure tools
-        uses: DeLaGuardo/setup-clojure@10.3
+        uses: DeLaGuardo/setup-clojure@12.5
         with:
           lein: 2.9.1
       - name: Run unit tests
