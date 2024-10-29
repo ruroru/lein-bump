@@ -7,7 +7,7 @@ jobs:
   test-jvm:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [ macos-latest, ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
