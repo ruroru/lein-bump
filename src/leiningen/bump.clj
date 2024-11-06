@@ -1,5 +1,6 @@
 (ns leiningen.bump
   (:require
+    [leiningen.core.project :as lein-project]
     [clojure.core.match :as match]
     [clojure.string :as string])
   (:import (java.util.regex Matcher Pattern)))
@@ -71,4 +72,5 @@
   (let [command (first args)
         project-version (:version project)
         project-clj "project.clj"]
+
     (update-project-clj project-clj project-version command args)))
