@@ -9,6 +9,9 @@
 
 (def dev "dev")
 
+(defn- verify-not-written []
+  (is (= (mock/call-count spit) 0)))
+
 (defn- verify-spit [args call-count]
   (is (= (mock/call-count spit) call-count))
   (is (= (mock/calls spit) args)))
@@ -58,6 +61,14 @@
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project dev)
         (verify-spit-call "6.0.1-SNAPSHOT"))))
+
+  (testing "Prepare for new development iteration for 5.4.9-SNAPSHOT"
+    (let [project {:version "5.4.9-SNAPSHOT"}]
+      (mock/with-mock
+        [spit nil
+         slurp (get-mock-project-clj (:version project))]
+        (plugin/bump project dev)
+        (verify-not-written))))
 
   (testing "Prepare for new development iteration for 5.4.8"
     (let [project {:version "5.4.8"}]

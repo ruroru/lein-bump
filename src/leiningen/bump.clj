@@ -52,7 +52,8 @@
     :else "Invalid option"))
 
 (defn- handle-prep-for-new-iteration [current-project-version args]
-  (update-version current-project-version get-increased-patch-snapshot-version))
+  (when-not (string/ends-with? current-project-version "-SNAPSHOT")
+    (update-version current-project-version get-increased-patch-snapshot-version)))
 
 (defn bump
   "Allows stepping version from lein"
