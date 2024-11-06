@@ -6,8 +6,6 @@
     [mock-clj.core :as mock]))
 
 (defn- get-mock-project-clj [version] (str "(defproject lein-versions-plugin \"" version "\" :description \"F\" :url \"h\" :dependencies [[dependency-1 \"5.4.8\"] [dependency-2 \"5.4.5\"]])\n"))
-(defn- get-multi-project-mock-clj [version] (str "(defproject lein-versions-plugin \"" version "\" :description \"F\" :sub [\"sub-1\" \"sub2\"]:url \"h\" :dependencies [[dependency-1 \"5.4.8\"] [dependency-2 \"5.4.5\"]])\n"))
-
 
 (def dev "dev")
 

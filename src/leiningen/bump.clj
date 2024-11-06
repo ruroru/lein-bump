@@ -4,10 +4,9 @@
     [clojure.string :as string])
   (:import (java.util.regex Matcher Pattern)))
 
-(def ^:private project-clj "project.clj")
 (def ^:private snapshot-suffix "-SNAPSHOT")
 
-(defn- set-version-in-project-clj [old-version new-version]
+(defn- set-version-in-project-clj [project-clj old-version new-version]
   (let [proj-file (slurp project-clj)
         matcher (.matcher
                   (Pattern/compile (format "(\\(defproject .+? )\"\\Q%s\\E\"" old-version))
@@ -39,31 +38,37 @@
 (defn- get-increased-patch-snapshot-version [current-version]
   (str (get-increased-patch-version current-version) snapshot-suffix))
 
-(defn- update-version [current-version increase-version-function]
+(defn- update-version [project-clj current-version increase-version-function]
   (let [new-project-version (increase-version-function current-version)]
-    (set-version-in-project-clj current-version new-project-version)))
+    (set-version-in-project-clj project-clj current-version new-project-version)))
 
-(defn- handle-release-version [current-project-version command]
+(defn- handle-release-version [project-clj current-project-version command]
   (match/match
     [command]
-    ["patch"] (update-version current-project-version get-increased-patch-version)
-    ["minor"] (update-version current-project-version get-increased-minor-version)
-    ["major"] (update-version current-project-version get-increased-major-version)
+    ["patch"] (update-version project-clj current-project-version get-increased-patch-version)
+    ["minor"] (update-version project-clj current-project-version get-increased-minor-version)
+    ["major"] (update-version project-clj current-project-version get-increased-major-version)
     :else "Invalid option"))
 
-(defn- handle-prep-for-new-iteration [current-project-version args]
+(defn- handle-prep-for-new-iteration [project-clj current-project-version args]
   (when-not (string/ends-with? current-project-version "-SNAPSHOT")
-    (update-version current-project-version get-increased-patch-snapshot-version)))
+    (update-version project-clj current-project-version get-increased-patch-snapshot-version)))
+
+
+(defn- update-project-clj [project-clj project-version command args]
+  (match/match
+    [command]
+    ["patch"] (handle-release-version project-clj project-version command)
+    ["minor"] (handle-release-version project-clj project-version command)
+    ["major"] (handle-release-version project-clj project-version command)
+    ["dev"] (handle-prep-for-new-iteration project-clj project-version command)
+    ["set"] (set-version-in-project-clj project-clj project-version (-> args rest first))
+    :else (println project-version)))
 
 (defn bump
   "Allows stepping version from lein"
   [project & args]
-  (let [command (first args)]
-    (match/match
-      [command]
-      ["patch"] (handle-release-version (:version project) command)
-      ["minor"] (handle-release-version (:version project) command)
-      ["major"] (handle-release-version (:version project) command)
-      ["dev"] (handle-prep-for-new-iteration (:version project) command)
-      ["set"] (set-version-in-project-clj (:version project) (-> args rest first))
-      :else (println (:version project)))))
+  (let [command (first args)
+        project-version (:version project)
+        project-clj "project.clj"]
+    (update-project-clj project-clj project-version command args)))
