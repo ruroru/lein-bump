@@ -50,7 +50,7 @@
     ["major"] (update-version project-clj current-project-version get-increased-major-version)
     :else "Invalid option"))
 
-(defn- handle-prep-for-new-iteration [project-clj current-project-version args]
+(defn- handle-prep-for-new-iteration [project-clj current-project-version]
   (when-not (string/ends-with? current-project-version "-SNAPSHOT")
     (update-version project-clj current-project-version get-increased-patch-snapshot-version)))
 
@@ -61,7 +61,7 @@
     ["patch"] (handle-release-version project-clj project-version command)
     ["minor"] (handle-release-version project-clj project-version command)
     ["major"] (handle-release-version project-clj project-version command)
-    ["dev"] (handle-prep-for-new-iteration project-clj project-version command)
+    ["dev"] (handle-prep-for-new-iteration project-clj project-version)
     ["set"] (set-version-in-project-clj project-clj project-version (-> args rest first))
     :else (println project-version)))
 
