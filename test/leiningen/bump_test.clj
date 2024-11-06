@@ -81,7 +81,7 @@
       (mock/with-mock
         [spit nil
          slurp (get-mock-project-clj (:version project))]
-        (plugin/bump project "set" "1.0.0")
+        (plugin/bump project "1.0.0")
         (verify-project-clj-write "1.0.0")))))
 
 (deftest get-version

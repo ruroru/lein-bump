@@ -1,6 +1,5 @@
 (ns leiningen.bump
   (:require
-    [leiningen.core.project :as lein-project]
     [clojure.core.match :as match]
     [clojure.string :as string])
   (:import (java.util.regex Matcher Pattern)))
@@ -56,14 +55,14 @@
     (update-version project-clj current-project-version get-increased-patch-snapshot-version)))
 
 
-(defn- update-project-clj [project-clj project-version command args]
-  (match/match
-    [command]
-    ["patch"] (handle-release-version project-clj project-version command)
-    ["minor"] (handle-release-version project-clj project-version command)
-    ["major"] (handle-release-version project-clj project-version command)
-    ["dev"] (handle-prep-for-new-iteration project-clj project-version)
-    ["set"] (set-version-in-project-clj project-clj project-version (-> args rest first))
+(defn- update-project-clj [project-clj project-version arg]
+
+  (cond
+    (= arg "patch") (handle-release-version project-clj project-version arg)
+    (= arg "minor") (handle-release-version project-clj project-version arg)
+    (= arg "major") (handle-release-version project-clj project-version arg)
+    (= arg "dev") (handle-prep-for-new-iteration project-clj project-version)
+    (not (nil? arg)) (set-version-in-project-clj project-clj project-version arg)
     :else (println project-version)))
 
 (defn bump
@@ -73,4 +72,4 @@
         project-version (:version project)
         project-clj "project.clj"]
 
-    (update-project-clj project-clj project-version command args)))
+    (update-project-clj project-clj project-version command)))
