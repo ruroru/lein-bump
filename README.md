@@ -1,4 +1,6 @@
 
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.jj/bump.svg)](https://clojars.org/org.clojars.jj/bump)
+
 ## Usage
 ### Retrieving the current project's version
     $ lein bump

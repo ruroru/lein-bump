@@ -18,6 +18,8 @@ jobs:
         uses: DeLaGuardo/setup-clojure@12.6
         with:
           lein: latest
+      - name: Test
+        run: lein test
       - name: Configure GPG key
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
