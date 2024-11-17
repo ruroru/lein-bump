@@ -1,6 +1,6 @@
 (ns leiningen.bump
   (:require
-    [clojure.core.match :as match]
+    [leiningen.core.project :as lein-project]
     [clojure.string :as string])
   (:import (java.util.regex Matcher Pattern)))
 
@@ -15,7 +15,9 @@
       (println "Error: unable to find version string %s in project.clj file!" old-version)
       (do
         (spit project-clj (.replaceFirst ^Matcher matcher ^String (format "%s\"%s\"" (.group matcher 1) new-version)))
-        (println (format "Updated project version from %s to %s" old-version new-version))))))
+        (if (= "project.clj" project-clj)
+          (println (format "Updated project version from %s to %s" old-version new-version))
+          (println (format "Updated project version from %s to %s in %s" old-version new-version project-clj)))))))
 
 (defn- get-increased-major-version [version]
   (let [major-version (-> version (string/split #"\.") first Integer/parseInt inc)]
@@ -43,11 +45,10 @@
     (set-version-in-project-clj project-clj current-version new-project-version)))
 
 (defn- handle-release-version [project-clj current-project-version command]
-  (match/match
-    [command]
-    ["patch"] (update-version project-clj current-project-version get-increased-patch-version)
-    ["minor"] (update-version project-clj current-project-version get-increased-minor-version)
-    ["major"] (update-version project-clj current-project-version get-increased-major-version)
+  (cond
+    (.equals "patch" command) (update-version project-clj current-project-version get-increased-patch-version)
+    (.equals "minor" command) (update-version project-clj current-project-version get-increased-minor-version)
+    (.equals "major" command) (update-version project-clj current-project-version get-increased-major-version)
     :else "Invalid option"))
 
 (defn- handle-prep-for-new-iteration [project-clj current-project-version]
@@ -56,7 +57,6 @@
 
 
 (defn- update-project-clj [project-clj project-version arg]
-
   (cond
     (= arg "patch") (handle-release-version project-clj project-version arg)
     (= arg "minor") (handle-release-version project-clj project-version arg)
@@ -69,7 +69,10 @@
   "Allows stepping version from lein"
   [project & args]
   (let [command (first args)
-        project-version (:version project)
-        project-clj "project.clj"]
-
-    (update-project-clj project-clj project-version command)))
+        project-version (:version project)]
+    (let [project-files (cons "project.clj"
+                              (map (fn [item]
+                                     (str item "/project.clj"))
+                                   (:sub (lein-project/read))))]
+      (doseq [project-file project-files]
+        (update-project-clj project-file project-version command)))))
