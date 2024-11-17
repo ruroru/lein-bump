@@ -1,13 +1,19 @@
+lein bump is a leiningen plugin that helps managing version in leiningen
+and [lein sub](https://github.com/kumarshantanu/lein-sub) projects. It follows semantic versioning rules and allows
+stepping patch, minor and major versions from cli.
 
 [![Clojars Project](https://img.shields.io/clojars/v/org.clojars.jj/bump.svg)](https://clojars.org/org.clojars.jj/bump)
 
 ## Usage
+
 ### Retrieving the current project's version
+
     $ lein bump
 
 ### Setting the project's version
 
-    $ lein bump set {x.y.z}
+    $ lein bump {x.y.z}
+
 ### Stepping the project's version
 
     $ lein bump patch
@@ -18,10 +24,9 @@
 
     $ lein bump dev
 
-
 ## License
 
-Copyright © 2023 FIXME
+Copyright © 2024 @ [ruroru](https://github.com/ruroru)
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
