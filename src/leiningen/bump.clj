@@ -15,7 +15,7 @@
       (println "Error: unable to find version string %s in project.clj file!" old-version)
       (do
         (spit project-clj (.replaceFirst ^Matcher matcher ^String (format "%s\"%s\"" (.group matcher 1) new-version)))
-        (println (format "Updated %s version from %s to %s"  project-clj old-version new-version))))))
+        (println (format "Updated %s version from %s to %s" project-clj old-version new-version))))))
 
 (defn- get-increased-major-version [version]
   (let [major-version (-> version (string/split #"\.") first Integer/parseInt inc)]
@@ -60,7 +60,8 @@
     (= arg "major") (handle-release-version project-clj project-version arg)
     (= arg "dev") (handle-prep-for-new-iteration project-clj project-version)
     (not (nil? arg)) (set-version-in-project-clj project-clj project-version arg)
-    :else (println project-version)))
+    :else (when (= "project.clj" project-clj)
+            (println project-version))))
 
 (defn bump
   "Allows stepping version from lein"
