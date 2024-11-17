@@ -15,9 +15,7 @@
       (println "Error: unable to find version string %s in project.clj file!" old-version)
       (do
         (spit project-clj (.replaceFirst ^Matcher matcher ^String (format "%s\"%s\"" (.group matcher 1) new-version)))
-        (if (= "project.clj" project-clj)
-          (println (format "Updated project version from %s to %s" old-version new-version))
-          (println (format "Updated project version from %s to %s in %s" old-version new-version project-clj)))))))
+        (println (format "Updated %s version from %s to %s"  project-clj old-version new-version))))))
 
 (defn- get-increased-major-version [version]
   (let [major-version (-> version (string/split #"\.") first Integer/parseInt inc)]
@@ -54,7 +52,6 @@
 (defn- handle-prep-for-new-iteration [project-clj current-project-version]
   (when-not (string/ends-with? current-project-version "-SNAPSHOT")
     (update-version project-clj current-project-version get-increased-patch-snapshot-version)))
-
 
 (defn- update-project-clj [project-clj project-version arg]
   (cond
