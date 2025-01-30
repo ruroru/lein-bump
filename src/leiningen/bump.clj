@@ -42,6 +42,15 @@
   (let [new-project-version (increase-version-function current-version)]
     (set-version-in-project-clj project-clj current-version new-project-version)))
 
+
+(defn- get-project-version [current-version arg]
+  (cond
+    (= arg "patch") (get-increased-patch-version current-version)
+    (= arg "minor") (get-increased-minor-version current-version)
+    (= arg "major") (get-increased-major-version current-version)
+    (= arg "dev") (get-increased-patch-snapshot-version current-version)
+    :else nil))
+
 (defn- handle-release-version [project-clj current-project-version command]
   (cond
     (.equals "patch" command) (update-version project-clj current-project-version get-increased-patch-version)
@@ -53,7 +62,7 @@
   (when-not (string/ends-with? current-project-version "-SNAPSHOT")
     (update-version project-clj current-project-version get-increased-patch-snapshot-version)))
 
-(defn- update-project-clj [project-clj project-version arg]
+(defn- update-project-version [project-clj project-version arg]
   (cond
     (= arg "patch") (handle-release-version project-clj project-version arg)
     (= arg "minor") (handle-release-version project-clj project-version arg)
@@ -63,14 +72,32 @@
     :else (when (= "project.clj" project-clj)
             (println project-version))))
 
+(defn- update-subproject-version [project-clj sub-project old-version new-version]
+  (let [pattern (re-pattern (format "%s\\s*\"%s\"\\s*(?=\\])" sub-project old-version))]
+    (spit project-clj (string/replace (slurp project-clj) pattern
+                                      (format "%s \"%s\"" sub-project new-version)))))
+
+
+
+(defn- update-command [command]
+  (contains? #{"patch" "set" "minor" "major" "dev"} command))
+
 (defn bump
   "Allows stepping version from lein"
   [project & args]
   (let [command (first args)
-        project-version (:version project)]
-    (let [project-files (cons "project.clj"
-                              (map (fn [item]
-                                     (str item "/project.clj"))
-                                   (:sub (lein-project/read))))]
-      (doseq [project-file project-files]
-        (update-project-clj project-file project-version command)))))
+        project-version (:version project)
+        project-files (cons "project.clj"
+                            (map (fn [item]
+                                   (str item "/project.clj"))
+                                 (:sub (lein-project/read))))]
+
+    (doseq [project-file project-files]
+      (update-project-version project-file project-version command))
+
+    (let [sub-projects (:sub project)
+          new-version (get-project-version project-version command)]
+      (when (and sub-projects
+                 (update-command command))
+        (doseq [sub-project sub-projects]
+          (update-subproject-version "project.clj" sub-project project-version new-version))))))
