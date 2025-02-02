@@ -1,4 +1,4 @@
-(defproject org.clojars.jj/bump "1.0.4-SNAPSHOT"
+(defproject org.clojars.jj/bump "1.0.4"
   :description "Lein plugin that helps updating version in project.clj"
   :url "https://github.com/ruroru/lein-bump"
   :license {:name "EPL-2.0"
