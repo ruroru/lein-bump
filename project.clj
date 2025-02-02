@@ -9,6 +9,6 @@
                                     :username :env/clojars_user
                                     :password :env/clojars_pass}]]
 
-  :profiles {:release {:plugins [[org.clojars.jj/bump "1.0.0"]]}
+  :profiles {:release {:plugins [[org.clojars.jj/bump "1.0.4"]]}
              :test {:global-vars  {*warn-on-reflection* true}
                     :dependencies [[mock-clj "0.2.1"]]}})
