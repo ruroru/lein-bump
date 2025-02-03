@@ -4,17 +4,25 @@ stepping patch, minor and major versions from cli.
 
 [![Clojars Project](https://img.shields.io/clojars/v/org.clojars.jj/bump.svg)](https://clojars.org/org.clojars.jj/bump)
 
-## Usage
+# Installation
 
-### Retrieving the current project's version
+Add ``org.clojars.jj/bump`` to the ``:plugins`` list in your ``project.clj``
+
+```
+:plugins [[org.clojars.jj/bump "1.0.4"]]
+```
+
+# Usage
+
+## Retrieving the current project's version
 
     $ lein bump
 
-### Setting the project's version
+## Setting the project's version
 
     $ lein bump {x.y.z}
 
-### Stepping the project's version
+## Stepping the project's version
 
     $ lein bump patch
 
@@ -24,9 +32,9 @@ stepping patch, minor and major versions from cli.
 
     $ lein bump dev
 
-## License
+# License
 
-Copyright © 2024 @ [ruroru](https://github.com/ruroru)
+Copyright © 2025 @ [ruroru](https://github.com/ruroru)
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
