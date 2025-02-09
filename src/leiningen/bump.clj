@@ -24,22 +24,26 @@
 (defn- get-increased-patch-snapshot-version [current-version]
   (str (get-increased-patch-version current-version) snapshot-suffix))
 
+(defn- is-semver? [version]
+  (not (nil? (re-matches #"^\d+\.\d+\.\d*(\-SNAPSHOT)?$" version))))
+
 (defn- get-next-project-version [command current-version]
   (cond
     (= command "patch") (get-increased-patch-version current-version)
     (= command "minor") (get-increased-minor-version current-version)
     (= command "major") (get-increased-major-version current-version)
     (= command "dev") (get-increased-patch-snapshot-version current-version)
-    :else command))
+    :else (if (is-semver? command)
+            command
+            :illegal)))
 
 (defn- update-version-in-project-clj [file-config old-version new-version]
   (let [pattern-str (format "(?<=\\\")%s(?=\\\"\\s+)" old-version)
         match (re-pattern pattern-str)]
     (string/replace file-config match new-version)))
 
-(defn- update-config [file-config command old-version]
-  (let [new-version (get-next-project-version command old-version)]
-    (update-version-in-project-clj file-config old-version new-version)))
+(defn- update-config [file-config new-version old-version]
+  (update-version-in-project-clj file-config old-version new-version))
 
 (defn- write-to-file [content project-file]
   (spit project-file content))
@@ -51,11 +55,10 @@
           rest-regexes (rest regexes-to-update)]
       (update-subs-with-new-values (string/replace file-config (first update-config) (second update-config)) rest-regexes))))
 
-(defn- update-subs [file-config current-file command old-version]
+(defn- update-subs [file-config current-file new-version old-version]
   (if (and (= current-file "project.clj")
            (:sub (lein-project/read)))
-    (let [new-version (get-next-project-version command old-version)
-          regexes-to-update (map
+    (let [regexes-to-update (map
                               (fn [project-id]
                                 (let [replace-pattern (format "(?<=\\[)\\s*%s\\s+\\\"%s(?=\\\"\\s*\\])" project-id old-version)]
                                   [(re-pattern replace-pattern) (format "%s \"%s" project-id new-version)]))
@@ -75,13 +78,18 @@
                             (map (fn [item]
                                    (str item "/project.clj"))
                                  (:sub (lein-project/read))))]
+
     (when (not (and (= command "dev")
                     (string/ends-with? (:version project) snapshot-suffix)))
       (if command
-        (doseq [project-file project-files]
-          (-> project-file
-              slurp
-              (update-config command (:version project))
-              (update-subs project-file command (:version project))
-              (write-to-file project-file)))
+        (let [current-version (:version project)
+              new-version (get-next-project-version command current-version)]
+          (if (not (= :illegal new-version))
+            (doseq [project-file project-files]
+              (-> project-file
+                  slurp
+                  (update-config new-version current-version)
+                  (update-subs project-file new-version current-version)
+                  (write-to-file project-file)))
+            (println "New version is not legal.")))
         (println (:version project))))))

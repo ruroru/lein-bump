@@ -44,8 +44,6 @@
      (is (= (mock/calls spit) (into [] args)))
      (is (= (mock/call-count spit) (+ 1 (count subprojects)))))))
 
-
-
 (deftest prepare-for-release
   (testing "Stepping patch version"
     (let [project {:version "5.4.8"}]
@@ -105,13 +103,30 @@
         (verify-project-clj-write (list project-name) "5.4.9-SNAPSHOT")))))
 
 (deftest set-version
-  (testing "set version to 6.0.0"
+  (testing "set version to 1.0.0"
     (let [project {:version "5.4.8"}]
       (mock/with-mock
         [spit nil
          slurp (get-mock-project-clj project-name (:version project))]
         (plugin/bump project "1.0.0")
-        (verify-project-clj-write (list project-name) "1.0.0")))))
+        (verify-project-clj-write (list project-name) "1.0.0"))))
+
+  (testing "set version to 1.0.0-SNAPSHOT"
+    (let [project {:version "5.4.8"}]
+      (mock/with-mock
+        [spit nil
+         slurp (get-mock-project-clj project-name (:version project))]
+        (plugin/bump project "1.0.0-SNAPSHOT")
+        (verify-project-clj-write (list project-name) "1.0.0-SNAPSHOT")
+        )))
+
+  (testing "set invalid version"
+    (let [project {:version "5.4.8"}]
+      (is (= "New version is not legal." (string/trim-newline (with-out-str (plugin/bump project "..."))))))))
+
+(deftest  invalid-version
+  (let [project {:version "5.4.8"}]
+    (= "Unable to set version" (string/trim-newline (with-out-str (plugin/bump project "..."))))))
 
 (deftest get-version
   (testing "get version for 5.4.8"
@@ -119,7 +134,7 @@
       (is (= "5.4.8" (string/trim-newline (with-out-str (plugin/bump project)))))))
   (testing "get version for 5.4.9-SNAPSHOT"
     (let [project {:version "5.4.9-SNAPSHOT"}]
-      (plugin/bump project)
+
       (is (= "5.4.9-SNAPSHOT" (string/trim-newline (with-out-str (plugin/bump project)))))))
   (testing "get multi project version"
     (mock/with-mock
