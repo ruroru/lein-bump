@@ -79,7 +79,7 @@
 
 
 
-(defn- update-command [command]
+(defn- is-update-command? [command]
   (contains? #{"patch" "set" "minor" "major" "dev"} command))
 
 (defn bump
@@ -98,6 +98,6 @@
     (let [sub-projects (:sub project)
           new-version (get-project-version project-version command)]
       (when (and sub-projects
-                 (update-command command))
+                 (is-update-command? command))
         (doseq [sub-project sub-projects]
           (update-subproject-version "project.clj" sub-project project-version new-version))))))
