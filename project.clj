@@ -8,7 +8,13 @@
   :deploy-repositories [["clojars" {:url      "https://repo.clojars.org"
                                     :username :env/clojars_user
                                     :password :env/clojars_pass}]]
+  
+  :strict-check {:filter ["leiningen.core"]}
 
-  :profiles {:release {:plugins [[org.clojars.jj/bump "1.0.4"]]}
+  :plugins [[org.clojars.jj/strict-check "1.1.0"]
+            [org.clojars.jj/bump "1.0.4"]
+            [org.clojars.jj/bump-md "1.1.0"]]
+  
+  :profiles {
              :test {:global-vars  {*warn-on-reflection* true}
                     :dependencies [[mock-clj "0.2.1"]]}})
