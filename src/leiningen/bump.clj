@@ -1,6 +1,5 @@
 (ns leiningen.bump
   (:require
-    [leiningen.core.project :as lein-project]
     [clojure.string :as string])
   (:import (java.util.regex Matcher Pattern)))
 
@@ -73,9 +72,12 @@
             (println project-version))))
 
 (defn- update-subproject-version [project-clj sub-project old-version new-version]
-  (let [pattern (re-pattern (format "%s\\s*\"%s\"\\s*(?=\\])" sub-project old-version))]
-    (spit project-clj (string/replace (slurp project-clj) pattern
-                                      (format "%s \"%s\"" sub-project new-version)))))
+  (let [pattern (re-pattern (format "%s\\s*\"%s\"\\s*(?=\\])" sub-project old-version))
+        content (slurp project-clj)
+        updated (string/replace content pattern
+                                (format "%s \"%s\"" sub-project new-version))]
+    (when (not= content updated)
+      (spit project-clj updated))))
 
 
 
@@ -87,17 +89,17 @@
   [project & args]
   (let [command (first args)
         project-version (:version project)
+        sub-projects (:sub project)
         project-files (cons "project.clj"
                             (map (fn [item]
                                    (str item "/project.clj"))
-                                 (:sub (lein-project/read))))]
+                                 sub-projects))
+        new-version (get-project-version project-version command)]
 
     (doseq [project-file project-files]
       (update-project-version project-file project-version command))
 
-    (let [sub-projects (:sub project)
-          new-version (get-project-version project-version command)]
-      (when (and sub-projects
-                 (update-command command))
-        (doseq [sub-project sub-projects]
-          (update-subproject-version "project.clj" sub-project project-version new-version))))))
+    (when (and sub-projects
+               (update-command command))
+      (doseq [sub-project sub-projects]
+        (update-subproject-version "project.clj" sub-project project-version new-version)))))

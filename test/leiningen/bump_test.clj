@@ -119,54 +119,47 @@
       (plugin/bump project)
       (is (= "5.4.9-SNAPSHOT" (string/trim-newline (with-out-str (plugin/bump project)))))))
   (testing "get multi project version"
-    (mock/with-mock
-      [leiningen.core.project/read {:sub ["sub1" "sub2"]}]
-      (plugin/bump {:version "5.4.9-SNAPSHOT"})
-      (is (= "5.4.9-SNAPSHOT" (string/trim-newline (with-out-str (plugin/bump {:version "5.4.9-SNAPSHOT"}))))))))
+    (let [project {:version "5.4.9-SNAPSHOT" :sub ["sub1" "sub2"]}]
+      (is (= "5.4.9-SNAPSHOT" (string/trim-newline (with-out-str (plugin/bump project))))))))
 
 
 (deftest bump-multi-project-version
   (testing "step multi project patch version"
-    (let [project {:version "5.4.9-SNAPSHOT"}]
+    (let [project {:version "5.4.9-SNAPSHOT" :sub ["sub1" "sub2"]}]
       (mock/with-mock
         [spit nil
-         leiningen.core.project/read {:sub ["sub1" "sub2"]}
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project "patch")
         (verify-project-clj-write project-name "5.4.9" (list "sub1" "sub2")))))
 
   (testing "step multi project minor version"
-    (let [project {:version "5.4.9-SNAPSHOT"}]
+    (let [project {:version "5.4.9-SNAPSHOT" :sub ["sub1" "sub2"]}]
       (mock/with-mock
         [spit nil
-         leiningen.core.project/read {:sub ["sub1" "sub2"]}
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project "minor")
         (verify-project-clj-write project-name "5.5.0" (list "sub1" "sub2")))))
 
   (testing "step multi project major version"
-    (let [project {:version "5.4.9-SNAPSHOT"}]
+    (let [project {:version "5.4.9-SNAPSHOT" :sub ["sub1" "sub2"]}]
       (mock/with-mock
         [spit nil
-         leiningen.core.project/read {:sub ["sub1" "sub2"]}
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project "major")
         (verify-project-clj-write project-name "6.0.0" (list "sub1" "sub2")))))
 
   (testing "multi project set version"
-    (let [project {:version "5.4.9-SNAPSHOT"}]
+    (let [project {:version "5.4.9-SNAPSHOT" :sub ["sub1" "sub2"]}]
       (mock/with-mock
         [spit nil
-         leiningen.core.project/read {:sub ["sub1" "sub2"]}
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project "1.0.0")
         (verify-project-clj-write project-name "1.0.0" (list "sub1" "sub2")))))
 
   (testing "step multi project version to snapshot"
-    (let [project {:version "5.4.9"}]
+    (let [project {:version "5.4.9" :sub ["sub1" "sub2"]}]
       (mock/with-mock
         [spit nil
-         leiningen.core.project/read {:sub ["sub1" "sub2"]}
          slurp (get-mock-project-clj (:version project))]
         (plugin/bump project "dev")
         (verify-project-clj-write project-name "5.4.10-SNAPSHOT" (list "sub1" "sub2"))))))
